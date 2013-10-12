@@ -11,10 +11,7 @@ WORLD = world.World(config.WORLD_DIR)
 encoder = json.JSONEncoder()
 
 def getChunkJson(x, z):
-	#RADIUS = 32
 	#logging.basicConfig(level=logging.DEBUG)
-
-
 	#print 'using coords (%d, %d, %d)' % (poiX, poiY, poiZ)
 
 	'''
@@ -29,7 +26,6 @@ def getChunkJson(x, z):
 	rs = WORLD.get_regionset(None)
 
 	zeroArray = numpy.zeros((16, 16, 16), numpy.uint16)
-	#numpy.set_printoptions(edgeitems=2*RADIUS, linewidth=3*RADIUS)
 
 	try:
 		chunk = rs.get_chunk(x, z)
