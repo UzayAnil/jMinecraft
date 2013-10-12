@@ -67,16 +67,19 @@ $(document).ready(function() {
 			var block;
 			var dataSize = data.length / 2;
 			var dataSizeHalf = Math.floor(dataSize / 2);
-			for (var z = 0; z < dataSizeHalf; z++) {
-				var zSlice = data[z];
-				for (var y = 0; y < dataSizeHalf; y++) {
-					var ySlice = zSlice[y];
-					for (var x = 0; x < dataSizeHalf; x++) {
-						//console.log('index: ' + x + ' ' + y + ' ' + z);
-						block = getBlock(ySlice[x]);
+			for (var y = 0; y < data.length; ++y) {
+				var ySlice = data[y];
+				for (var x = 0; x < ySlice.length; ++x) {
+					var xSlice = ySlice[x];
+					for (var z = 0; z < xSlice.length; ++z) {
+						var b = xSlice[z];
+						if (b === blockType.Stone)
+							block = null;
+						else
+							block = getBlock(b);
 
-						if (!Blocks[ySlice[x]])
-							console.log('unknown block id: ' + ySlice[x] + ', using diamond_block');
+						if (!blocks[b])
+							console.log('unknown block id: ' + b + ', using diamond_block');
 						//console.log('checking for block id: ' + ySlice[x])
 						if (block) {
 							//console.log('adding a block: ' + Blocks[ySlice[x].toString()])
@@ -89,6 +92,35 @@ $(document).ready(function() {
 					}
 				}
 			}
+						
+			/*
+			for (var z = 0; z < dataSizeHalf; z++) {
+				var zSlice = data[z];
+				for (var y = 0; y < dataSizeHalf; y++) {
+					var ySlice = zSlice[y];
+					for (var x = 0; x < dataSizeHalf; x++) {
+						//console.log('index: ' + x + ' ' + y + ' ' + z);
+						if (ySlice[x] === blockType.Stone)
+							block = null;
+						else
+							block = getBlock(ySlice[x]);
+
+						if (!blocks[ySlice[x]])
+							console.log('unknown block id: ' + ySlice[x] + ', using diamond_block');
+						//console.log('checking for block id: ' + ySlice[x])
+						if (block) {
+							//console.log('adding a block: ' + Blocks[ySlice[x].toString()])
+							block.position.x = x - dataSizeHalf;
+							block.position.y = y - dataSizeHalf;
+							block.position.z = z - dataSizeHalf;
+							scene.add(block);
+							//renderer.render(scene, camera);
+						}
+					}
+				}
+				
+			}
+			*/
 
 		});
 	}
@@ -160,8 +192,8 @@ $(document).ready(function() {
 
 	function getBlock(blockId, callback) {
 
-		//var block_name = blocks[blockId];
-		var block_name = blockId;
+		var block_name = blocks[blockId];
+		//var block_name = blockId;
 		if (block_name === 'air')
 			return null;
 
@@ -169,7 +201,7 @@ $(document).ready(function() {
 			block_name = 'diamond_block.png';
 
 		if (block_name instanceof Array)
-			block_name = 'diamond_block.png';
+			block_name = block_name[0];//'diamond_block.png';
 
 		if (block_name in blockCache_) // if we have already made this block, clone it
 			return blockCache_[block_name].clone();
@@ -215,7 +247,7 @@ $(document).ready(function() {
 
 	function loadTestMap(callback) {
 		var request = new XMLHttpRequest();
-		request.open('GET', 'testMap.json', true);
+		request.open('GET', 'ajax/testMap.json', true);
 		request.onload = function() {
 			if (request.status === 200) {
 				var data = JSON.parse(request.response);

@@ -117,23 +117,23 @@ var blocks = [
 	null,
 	null,
 	null,
-	null, // 37 dandelion
+	'flower_dandelion.png', // 37 dandelion
+	'flower_rose.png', // 38 poppy
 	null,
 	null,
 	null,
 	null,
+	['stone_slab_top.png', 'stone_slab_side.png'], // 43 stone slab
+	['stone_slab_top.png', 'stone_slab_side.png'], // 44 stone slab
 	null,
 	null,
 	null,
 	null,
+	'obsidian.png', // 49 obsidian
+	'torch_on.png', // 50 TODO
 	null,
 	null,
-	null,
-	null,
-	'torch_on.png', // 50
-	null,
-	null,
-	null,
+	'planks_oak.png', // 53 oak wood stairs TODO
 	null,
 	null,
 	null,
@@ -141,54 +141,88 @@ var blocks = [
 	null,
 	null,
 	'farmland_dry.png',// 60 farmland
+	['furnace_front_off.png', 'furnace_side.png', 'furnace_top.png'], // 61 furnace off
 	null,
 	null,
 	null,
 	null,
+	'rail_normal.png', // 66 rail
+	null,
+	null,
+	null,
+	null, // 70
+	null,
+	null,
+	'redstone_ore.png', // 73 redstone ore
+	null,
+	null, // 75
 	null,
 	null,
 	null,
 	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
+	null, // 80
+	null, 
 	null,
 	null, // 83 sugar cane
 	null, // 84
 	'planks_oak.png', // 85 fence
 	null,
 	null,
+	'soul_sand.png', // 88 soul sand
+	null,
+	null, // 90
 	null,
 	null,
 	null,
 	null,
-	null,
-	null,
-	null,
-	null,
+	null, // 95
 	null,
 	null,
 	'stonebrick.png', // 98
 	null,
+	null, // 100
 	null,
 	null,
 	null,
 	null,
+	null, // 105
+	'vine.png',
+	'planks_oak.png', // 107 fence gate TODO
+	'brick.png',      // 108 brick stairs TODO
+	'stonebrick.png', // 109 stone brick stairs TODO
+	null, // 110
+	null,
+	'nether_brick.png', // 112 nether brick
+	null,
+	'nether_brick.png', // 114 nether brick stairs TODO
+	['nether_wart_stage_0.png', 'nether_wart_stage_1.png', 'nether_wart_stage_2.png'], // 115 nether wart
 	null,
 	null,
 	null,
-	null, // 107 fence gate
 	null,
-	'stonebrick.png' // 108 stone brick stairs
+	null, // 120
+	null,
+	null,
+	null,
+	null,
+	null, // 125
+	null,
+	null,
+	null,
+	null,
+	null, // 130
+	null,
+	null,
+	null,
+	null,
+	null, // 135
+	null,
+	null,
+	null,
+	'cobblestone.png', // 139 cobblestone wall TODO
+	null,
+	null,
+	'potatoes_stage_3.png' // TODO
 ]
 
 function handleBlockData(data) {
