@@ -6,7 +6,7 @@ $(document).ready(function() {
 
 	// GLOBALS
 	var mapContainer  = document.getElementById('MapContainer');
-	var TEXTURE_PATH   = 'minecraft/textures/blocks/';
+	var TEXTURE_PATH  = 'minecraft/textures/blocks/';
 	var textureCache_ = {};
 	var blockCache_   = {};
 	var queryParameters = queryObj();
@@ -61,7 +61,59 @@ $(document).ready(function() {
 	var ambientLight = new THREE.AmbientLight(0xcccccc);
 	scene.add(ambientLight);
 
+	// start rendering loop. i dunno if this will block or not
+	render();
 	
+	if ('x' in queryParameters && 'y' in queryParameters) {
+		console.log('Rendering chunk at ' + queryParameters.x + ', ' + queryParameters.y);
+		$.getJSON('/api/chunk/' + queryParameters.x + '/' + queryParameters.y, renderChunk);
+	} else {
+		console.log('Rendering chunk at spawn');
+		$.getJSON('/api/chunk/spawn', renderChunk);
+	}
+
+	function renderChunk(data) {
+		if (data.status !== 'success')
+			return;
+
+		var blocks = data.data;
+		console.log(blocks);
+		console.log(blocks[0]);
+		console.log(blocks[0][0]);
+
+		clearScene(scene);
+		var block;
+		var dataSize = blocks.length / 2;
+		var dataSizeHalf = Math.floor(dataSize / 2);
+		for (var y = 0, ylen = blocks.length; y < ylen; ++y) {
+			var ySlice = blocks[y];
+			for (var x = 0, xlen = ySlice.length; x < xlen; ++x) {
+				var xSlice = ySlice[x];
+				for (var z = 0, zlen = xSlice.length; z < zlen; ++z) {
+					var b = xSlice[z];
+					if (b === blockType.Stone)
+						block = null;
+					else
+						block = getBlock(b);
+
+					if (!blocks[b])
+						console.log('unknown block id: ' + b + ', using diamond_block');
+					//console.log('checking for block id: ' + ySlice[x])
+					if (block) {
+						//console.log('adding a block: ' + Blocks[ySlice[x].toString()])
+						block.position.x = x - dataSizeHalf;
+						block.position.y = y - dataSizeHalf;
+						block.position.z = z - dataSizeHalf;
+						scene.add(block);
+						//renderer.render(scene, camera);
+					}
+				}
+			}
+		}
+		console.log('done rendering');
+	}
+
+	/*
 	if ('test' in queryParameters) {
 		loadTestMap(function(data) {
 			var block;
@@ -92,35 +144,6 @@ $(document).ready(function() {
 					}
 				}
 			}
-						
-			/*
-			for (var z = 0; z < dataSizeHalf; z++) {
-				var zSlice = data[z];
-				for (var y = 0; y < dataSizeHalf; y++) {
-					var ySlice = zSlice[y];
-					for (var x = 0; x < dataSizeHalf; x++) {
-						//console.log('index: ' + x + ' ' + y + ' ' + z);
-						if (ySlice[x] === blockType.Stone)
-							block = null;
-						else
-							block = getBlock(ySlice[x]);
-
-						if (!blocks[ySlice[x]])
-							console.log('unknown block id: ' + ySlice[x] + ', using diamond_block');
-						//console.log('checking for block id: ' + ySlice[x])
-						if (block) {
-							//console.log('adding a block: ' + Blocks[ySlice[x].toString()])
-							block.position.x = x - dataSizeHalf;
-							block.position.y = y - dataSizeHalf;
-							block.position.z = z - dataSizeHalf;
-							scene.add(block);
-							//renderer.render(scene, camera);
-						}
-					}
-				}
-				
-			}
-			*/
 
 		});
 	}
@@ -142,6 +165,7 @@ $(document).ready(function() {
 				// replace the floor with the selected texture
 		});
 	}
+	*/
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // @@@  The Rendering Loop  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -159,6 +183,7 @@ $(document).ready(function() {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	
 	function getTexture(texture, callback) {
+		console.log(texture);
 		var tex = null;
 		if (texture in textureCache_)
 			return textureCache_[texture];
@@ -193,7 +218,6 @@ $(document).ready(function() {
 	function getBlock(blockId, callback) {
 
 		var block_name = blocks[blockId];
-		//var block_name = blockId;
 		if (block_name === 'air')
 			return null;
 
@@ -219,6 +243,7 @@ $(document).ready(function() {
 			}
 		}
 
+		console.log('block name: ' + block_name);
 
 		var tex;
 		if (block_name === 'grass') {
@@ -275,6 +300,16 @@ $(document).ready(function() {
 			rotWorldMatrix.multiply(object.matrix);
 		object.matrix = rotWorldMatrix;
 		object.rotation.setFromRotationMatrix(object.matrix);
+	}
+
+	// remove all objects from the scene
+	function clearScene(scene) {
+		var obj, i;
+		for (i = scene.children.length - 1; i >= 0 ; --i) {
+			obj = scene.children[i];
+			if (obj !== camera && obj !== pointLight)
+				scene.remove(obj);
+		}
 	}
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

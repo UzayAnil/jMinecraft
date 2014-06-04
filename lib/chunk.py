@@ -3,29 +3,18 @@
 from overviewer_core import world
 import logging
 import os, sys
-import json
 import numpy
-import config
+try:
+	import config
+	WORLD = world.World(config.WORLD_DIR)
+except ImportError:
+	WORLD_DIR = '/home/bschlenk/minecraft/world'
+	WORLD = world.World(WORLD_DIR)
 
-WORLD = world.World(config.WORLD_DIR)
-encoder = json.JSONEncoder()
-
-def getChunkJson(x, z):
-	#logging.basicConfig(level=logging.DEBUG)
-	#print 'using coords (%d, %d, %d)' % (poiX, poiY, poiZ)
-
-	'''
-	poiMinX = poiX - RADIUS
-	poiMaxX = poiX + RADIUS
-	poiMinZ = poiZ - RADIUS
-	poiMaxZ = poiZ + RADIUS
-	poiMaxY = min(256, poiY + RADIUS) # y value can't be above 255 or below 0
-	poiMinY = max(0, poiY - RADIUS)
-	'''
-
+def getChunk(x, z):
 	rs = WORLD.get_regionset(None)
 
-	zeroArray = numpy.zeros((16, 16, 16), numpy.uint16)
+	zeroArray = numpy.zeros((16, 16, 16), numpy.uint8)
 
 	try:
 		chunk = rs.get_chunk(x, z)
@@ -41,8 +30,38 @@ def getChunkJson(x, z):
 		else:
 			chunkArray = numpy.concatenate((chunkArray, section), axis=0)
 
-	ret = {'status': 'success', 'chunk': chunkArray.tolist()}
-	return encoder.encode(ret)
+	return {'status': 'success', 'data': chunkArray.tolist()}
+
+
+def getChunkSpawn():
+	x, y, z = WORLD.find_true_spawn()
+	return getChunk(x//16, z//16)
+
+
+def getChunkTopDown(x, z):
+	rs = WORLD.get_regionset(None)
+
+	try:
+		chunk = rs.get_chunk(x, z)
+	except world.ChunkDoesntExist, e:
+		return encoder.encode({'status': 'failure', 'msg': str(e)})
+
+	heightMap = chunk['HeightMap']
+	topView = numpy.zeros((16, 16), numpy.uint8)
+	for index, h in enumerate(heightMap):
+		x = index % 16
+		z = index // 16
+		y = (h - 1) % 16
+
+		try:
+			section = chunk['Sections'][(h - 1) // 16]['Blocks']
+		except IndexError:
+			continue
+
+		topView[z][x] = section[y-1][z][x]
+
+	return {'status': 'success', 'data': topView.tolist()}
+	
 
 
 def main():
@@ -57,7 +76,7 @@ def main():
 			print 'Values for x y and z must be integers'
 			sys.exit(1)
 
-	data = getChunkJson(poiX//16, poiZ//16)
+	data = getChunkTopDown(poiX//16, poiZ//16)
 	print data
 
 	'''
