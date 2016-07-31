@@ -1,8 +1,8 @@
 function Block(name, textures, icon) {
 
 	this.name = name;
-	this.textures = textures !== undefined ? textures : [];
-	this.icon = icon !== undefined ? icon : null;
+	this.textures = textures || [];
+	this.icon = icon || null;
 	
 	if (textures.length === 1)
 		this.face = {
